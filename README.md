@@ -1,6 +1,6 @@
 # Wireless Modular ECT — Concept Note
 
-**Author:** Hashir · R&D
+**Author:** Humayun · DM R&D
 **Status:** Concept formulation → 2-board prototype
 **Scope (this stage):** Continuity testing only
 
