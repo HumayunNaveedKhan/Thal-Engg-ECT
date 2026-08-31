@@ -1,32 +1,58 @@
-# Indigenous Wireless Electrical Check Tester (ECT / OMI)
+# Wireless Modular ECT — Concept Note
 
-[![Hardware License](https://img.shields.io/badge/Hardware-CERN--OHL--S-blue.svg)](https://cern.ch/cern-ohl)
-[![Firmware License](https://img.shields.io/badge/Firmware-MIT-green.svg)](LICENSE)
-[![Standard Compliance](https://img.shields.io/badge/Standards-IATF%2016949%20%7C%20IPC--WHMA--A--620-orange.svg)](#standards-compliance--qa)
-[![Build Status](https://img.shields.io/badge/Status-Phase%201%20Validated-brightgreen.svg)](#project-roadmap)
-
-An industrial-grade, modular, 4-wire Kelvin Electrical Check Tester (ECT / OMI) designed for 100% end-of-line verification of automotive and industrial wire harnesses. Built with zero single-supplier dependencies, utilizing standard off-the-shelf solid-state opto-isolated switching and precision Delta-Sigma analog measurement.
+**Author:** Hashir · R&D
+**Status:** Concept formulation → 2-board prototype
+**Scope (this stage):** Continuity testing only
 
 ---
 
-## 1. Executive Summary & Vision
+## 1. Concept
 
-In automotive wire harness manufacturing, passing a defective harness downstream to an OEM assembly plant results in severe line-stoppage penalties, warranty recalls, and safety hazards. Standard manual multimeter continuity checks cannot guarantee the zero-defect standard required by Tier-1 suppliers.
+The Electrical Check Tester is built from **modular 64-point nodes** instead of one
+large fixed machine. Each node has its own MCU (ESP32-S3) and talks **wirelessly** to
+a central PC. Capacity scales by adding nodes (64 → 128 → …).
 
-Commercial automotive harness testers (Cirris, NAC Man, CableEye, Weetech) cost between **$8,000 and $30,000 USD** and rely on closed-source, proprietary expansion hardware.
+- Every pin has a **global address** = `node_id : channel`.
+- The harness plugs into the nodes.
+- The **central PC** holds the master data and orchestrates the test.
 
-This project delivers an **open, auditable, high-reliability 512-to-1024 point tester** that can be manufactured turnkey through standard PCB assemblers for under **$700 USD**, providing:
-* **Zero False-Accept Guarantee:** True 4-Wire Kelvin sensing completely eliminates switch $R_{ON}$ drift, detecting high-resistance crimps down to milliohms.
-* **Rapid Group Isolation:** Matrix scanning algorithm completes 512-point harness checks (continuity + isolation) in **under 1.5 seconds**.
-* **Total Local Sourcing Independence:** Designed strictly around components with multiple cross-manufacturer footprints (SOP-4 PhotoMOS, SOIC-20 Power Shift Registers, standard TI ADCs).
+## 2. Key refinement (new)
 
----
+Continuity is a **relative** measurement — the test current needs a real return path.
+Radio can carry the *command* and the *result*, but **not the measurement itself**.
 
-## 2. Core Measurement Principles
+> Therefore all nodes share **one common ground / reference line ("REF spine")** —
+> a single thin conductor between boards. Everything else stays fully wireless.
 
-### 2.1 The 4-Wire Kelvin Architecture
+This single detail is what makes the modular wireless approach electrically valid.
 
-In conventional 2-wire testing, the switch on-resistance ($R_{ON} \approx 0.5\ \Omega - 4\ \Omega$) and internal fixture wiring add directly to the measured resistance:
-$$R_{\text{measured}} = R_{\text{crimp1}} + R_{\text{wire}} + R_{\text{crimp2}} + 2 R_{\text{switch}} + R_{\text{fixture}}$$
+## 3. How a test runs
 
-Because a bad crimp is typically defined as any contact resistance exceeding $1.0\ \Omega$, 2-wire testing cannot distinguish between a loose crimp and switch resistance variance.
+1. PC tells one node: **drive a pin and hold it**.
+2. PC tells the target node: **sense** its pin.
+3. Node reports the result back wirelessly.
+4. PC compares against master data → pass / fail, per pin.
+
+Because the drive is **held steady**, wireless latency/jitter does not affect the
+result.
+
+- **Same-board net** → tested locally by that node (fast, no spine needed).
+- **Cross-board net** → orchestrated by the PC through the REF spine.
+
+## 4. Two-board prototype spec
+
+| Item | Spec (per board) |
+|---|---|
+| Test points | 64 switched I/O |
+| I/O operating voltage | 24 V |
+| Indicators | 64 LEDs (per-pin status) |
+| Controller | ESP32-S3, wireless |
+| Protection | Opto-isolation on I/O (safeguards the ESP32) |
+| Inter-board link | Single shared GND/REF line only — no data cables |
+| Central control | Laptop / MacBook over telnet serial (for now) |
+
+## 5. Next steps
+
+- Refine the concept into a robust design.
+- Build the two modular boards and demonstrate continuity end-to-end.
+- Report progress as it develops.
