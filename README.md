@@ -1,4 +1,4 @@
-# Wireless Modular ECT — Engineering README
+# Wireless Modular ECT — Architecture
 
 **Project:** Wireless, modular Electrical Check Tester (ECT / OMI-type) for automotive wire-harness continuity verification
 **Author:** Humayun Khan · Deputy Manager R&D
