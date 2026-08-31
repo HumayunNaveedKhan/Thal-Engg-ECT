@@ -1,9 +1,13 @@
 # Wireless Modular ECT — Architecture
 
 **Project:** Wireless, modular Electrical Check Tester (ECT / OMI-type) for automotive wire-harness continuity verification
+
 **Author:** Humayun Khan · Deputy Manager R&D
+
 **Stage:** Concept → 2-board proof of concept (POC)
+
 **Scope (this document):** Continuity (go / no-go) testing only
+
 **Central control:** Laptop / MacBook over telnet-serial (POC)
 
 ---
